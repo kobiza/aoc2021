@@ -4,10 +4,7 @@ import example from './example'
 import {part1Tests, part2Tests} from './testsData'
 import testRunner from "../../utils/testRunner";
 
-const inputParser = (input) => input.split('\n').map(v => parseInt(v))
-
-const parsedInput = inputParser(input)
-const parsedExample = inputParser(example)
+const inputParser = (input) => input.split('\n')
 
 const part1 = (input) => {
     return _.identity(input)
@@ -24,8 +21,8 @@ export default {
     part1,
     part2,
     inputParser,
-    parsedInput,
-    parsedExample,
+    parsedInput: inputParser(input),
+    parsedExample: inputParser(example),
     runPart1Tests,
     runPart2Tests
 }
