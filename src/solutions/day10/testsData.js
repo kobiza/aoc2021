@@ -9,11 +9,34 @@ export const part1Tests = [
 ]
 
 export const part2Tests = [
+    // {
+    //     describe: 'first scenario',
+    //     args: [
+    //         ['<[(', '<[(', '<[('],
+    //     ],
+    //     expectedValue: 0
+    // },
     {
         describe: 'first scenario',
         args: [
-            1
+            [
+                '[({(<(())[]>[[{[]{<()<>>',
+                '[({(<(())[]>[[{[]{<()<>>',
+                '[({(<(())[]>[[{[]{<()<>>'],
         ],
-        expectedValue: 0
+        expectedValue: 288957
+    },
+    {
+        describe: 'first scenario',
+        args: [
+            [
+                '[({(<(())[]>[[{[]{<()<>>',
+                '[(()[<>])]({[<{<<[]>>(',
+                '(((({<>}<{<{<>}{[]{[]{}',
+                '{<[[]]>}<{[{[{[]{()[[[]',
+                '<{([{{}}[<[[[<>{}]]]>[]]',
+            ],
+        ],
+        expectedValue: 288957
     },
 ]
