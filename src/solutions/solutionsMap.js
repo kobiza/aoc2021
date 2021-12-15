@@ -5,6 +5,7 @@ import day11 from './day11/index'
 import day12 from './day12/index'
 import day13 from './day13/index'
 import day14 from './day14/index'
+import day15 from './day15/index'
 
 export default {
 	day08,
@@ -14,4 +15,5 @@ export default {
 	day12,
 	day13,
 	day14,
+	day15,
 }
