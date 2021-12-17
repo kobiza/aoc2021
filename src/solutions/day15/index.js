@@ -20,6 +20,8 @@ const getAdjacent = (matrixSize, coordinates) => {
     }).filter(c => !outOfRange(c))
 }
 
+const toStrCoords = (coords) => `${coords[0]},${coords[1]}`
+
 const getRightBottomAdjacent = (matrixSize, coordinates) => {
     const outOfRange = ([row, col]) => {
         return row < 0 || row > matrixSize.height - 1 || col < 0 || col > matrixSize.width - 1
@@ -44,36 +46,50 @@ const part1 = (input) => {
 
     let currentCell = {
         coords: [0,0],
-        prevVal: 0
+        risk: 0
     }
     const stack = []
+    const visited = {}
+    // const coordsCounter = {}
 
     const risks = []
     while (currentCell) {
-        const {coords: cellCoords, prevVal: cellPrevVal} = currentCell
-        // console.log('coord', cellCoords)
-        const currCellRisk = isStart(cellCoords) ? cellPrevVal : cellPrevVal + input[cellCoords[0]][cellCoords[1]]
+        const {coords: cellCoords, risk: cellRisk} = currentCell
+        // coordsCounter[toStrCoords(cellCoords)] = coordsCounter[toStrCoords(cellCoords)] || 0
+        // coordsCounter[toStrCoords(cellCoords)]++
+        // console.log(`${toStrCoords(cellCoords)} counter: (${coordsCounter[toStrCoords(cellCoords)]}) risk: (${visited[toStrCoords(cellCoords)]}) -> (${cellRisk})`)
+        visited[toStrCoords(cellCoords)] = cellRisk
 
         if (isEnd(cellCoords)) {
-            risks.push(currCellRisk)
+            risks.push(cellRisk)
         } else {
-            const myAdjacent = getRightBottomAdjacent(matrixSize, cellCoords)
+            const myAdjacent = _(getAdjacent(matrixSize, cellCoords))
+                .map(nextCellCoords => {
+                    const nextCellRisk = cellRisk + input[nextCellCoords[0]][nextCellCoords[1]]
+                    return {
+                        coords: nextCellCoords,
+                        risk: nextCellRisk
+                    }
+                })
+                .filter(a => _.isUndefined(visited[toStrCoords(a.coords)]) || a.risk < visited[toStrCoords(a.coords)])
+                .sortBy(v => v.risk)
+                .value()
 
-            _.forEach(myAdjacent, cellToAdd => {
+            _.forEach(myAdjacent, ({coords: cellToAdd, risk: nextCellRisk}) => {
                 const existCell = stack.find(({coords}) => {
                     return coords[0] === cellToAdd[0] && coords[1] === cellToAdd[1]
                 })
+
                 if (existCell) {
-                    existCell.prevVal = _.min([existCell.prevVal, currCellRisk])
-                    // console.log(`${cellCoords[0]},${cellCoords[1]} -> ${cellToAdd[0]},${cellToAdd[1]} updated: ${existCell.prevVal}`)
+                    existCell.risk = _.min([existCell.risk, nextCellRisk])
                 } else {
-                    // console.log(`${cellCoords[0]},${cellCoords[1]} -> ${cellToAdd[0]},${cellToAdd[1]} added with: ${currCellRisk}`)
                     stack.push({
                         coords: cellToAdd,
-                        prevVal: currCellRisk
+                        risk: nextCellRisk
                     })
                 }
             })
+
         }
 
         currentCell = stack.shift()
@@ -88,7 +104,7 @@ const mapMatrix = (mat, p) => {
     }))
 }
 
-const part2 = (input) => {
+const p5 = input => {
     const matrixSize = {
         width: input[0].length,
         height: input.length,
@@ -106,7 +122,7 @@ const part2 = (input) => {
     }
 
     const newMatrix = toHuge(input)
-    const toStrCoords = (coords) => `${coords[0]},${coords[1]}`
+
     let currCell = {
         coords: [0,0],
         depth: 0
@@ -154,8 +170,47 @@ const part2 = (input) => {
         })
     })
 
+    return newMatrix
+}
+
+const part2 = (input) => {
+    const newMatrix = p5(input)
+
     // return newMatrix
     return part1(newMatrix)
+}
+
+const logMatrix = (mat) => {
+    let text = ''
+    for (let i = 0; i < mat.length; i++) {
+        for (let j =0; j < mat[0].length; j++) {
+            text += mat[i][j]
+        }
+        text += '\n'
+    }
+
+    console.log(text)
+}
+const logsUtils = {
+    logMatrix: (mat) => {
+        const newMat = mapMatrix(mat, (v, i, j) => {
+            return `(${v})`
+        })
+
+        logMatrix(newMat)
+    },
+    logP5: (mat) => {
+        const newMat = p5(mat)
+
+        logMatrix(newMat)
+    },
+    logMatrixCoords: (mat) => {
+        const newMat = mapMatrix(mat, (v, i, j) => {
+            return `[${i},${j}]`
+        })
+
+        logMatrix(newMat)
+    }
 }
 
 const runPart1Tests = () => testRunner.runTests(part1, part1Tests)
@@ -165,6 +220,7 @@ export default {
     part1,
     part2,
     inputParser,
+    logsUtils,
     parsedInput: inputParser(input),
     parsedExample: inputParser(example),
     runPart1Tests,
